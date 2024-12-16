@@ -7,9 +7,7 @@ use JATSParser\HTML\Text as HTMLText;
 class Cell extends \DOMElement {
 
 	public function __construct(string $type) {
-
 		parent::__construct($type);
-
 	}
 
 	public function setContent(JATSCell $cell) {
@@ -18,16 +16,18 @@ class Cell extends \DOMElement {
 			$this->setAttribute("colspan", $cell->getColspan());
 		}
 
-
 		if ($cell->getRowspan()) {
 			$this->setAttribute("rowspan", $cell->getRowspan());
 		}
 
+		if ($cell->getAlign()) {
+			$this->setAttribute("align", $cell->getAlign());
+		}
 		// set some style
 
-		if ($cell->getColspan() > 1) {
-			$this->setAttribute("align", "center");
-		}
+		// if ($cell->getColspan() > 1) {
+		// 	$this->setAttribute("align", "center");
+		// }
 
 		foreach ($cell->getContent() as $cellContents) {
 			switch (get_class($cellContents)) {

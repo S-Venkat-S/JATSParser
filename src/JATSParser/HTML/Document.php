@@ -81,7 +81,20 @@ class Document extends \DOMDocument {
 			$tableNode->setAttribute("style", "font-size:10px;");
 			$tableNode->setAttribute("border", "1");
 			$tableNode->setAttribute("cellpadding", "2");
+	    // Check if the table has a tfoot and wrap it with a div
+		$tfootNode = $xpath->evaluate("tfoot", $tableNode)->item(0);
+		if ($tfootNode) {
+			// Create a div element to wrap the tfoot
+			$divNode = $this->createElement("div");
+			$divNode->setAttribute("class", "table-foot-wrapper"); // Optional styling class
+	
+			// Append the tfoot to the div
+			$divNode->appendChild($tfootNode);
+	
+			// Insert the div after the table
+			$tableNode->parentNode->insertBefore($divNode, $tableNode->nextSibling);
 		}
+	}
 
 		$captionNodes = $xpath->evaluate("//figure/p[@class=\"caption\"]|//table/caption");
 
@@ -147,7 +160,9 @@ class Document extends \DOMDocument {
 					$par->setContent($articleSection);
 					break;
 				case "JATSParser\Body\Listing":
+
 					$listing = new Listing($articleSection->getStyle());
+					// var_dump($listing);
 					$parentEl->appendChild($listing);
 					$listing->setContent($articleSection);
 					break;

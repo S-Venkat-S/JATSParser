@@ -12,6 +12,7 @@ class Equation extends AbstractElement {
 
 	public function __construct(\DOMElement $element) {
 		parent::__construct($element);
+		// var_dump($element->c14n());
 		$this->xpath->query("disp-formula", $element);
 		$math = str_replace("mml:","",$this->innerHTML($element));
 		$math = str_replace("mml-eqn-","eqn-",$math);

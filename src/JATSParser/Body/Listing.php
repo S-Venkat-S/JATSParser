@@ -12,7 +12,6 @@ class Listing extends AbstractElement {
 	 * default is 1
 	 */
 	private $type;
-
 	/* @var string: "unordered", "ordered" */
 	private $style;
 
@@ -25,10 +24,12 @@ class Listing extends AbstractElement {
 		$this->type = self::listElementLevel($list);
 
 		$listItemNodes = $xpath->query("list-item", $list);
+		
 		foreach ($listItemNodes as $listItemNode) {
+			
 			$listItem = array(); // represents list item
 			$insideListItems = $xpath->query("child::node()", $listItemNode);
-
+			
 			foreach ($insideListItems as $insideJatsListItem) {
 
 				if ($insideJatsListItem->nodeName === "p"){
@@ -48,7 +49,6 @@ class Listing extends AbstractElement {
 						}
 					}
 				}
-
 			}
 
 			$content[] = $listItem;

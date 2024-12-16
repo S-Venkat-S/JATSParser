@@ -9,7 +9,8 @@ use JATSParser\PDF\TCPDFDocument;
 /*
  * @var $jatsDocument JATSDocument object representation of JATS XML document
  */
-$jatsDocument = new JATSDocument("example.xml");
+$file_name = "example";
+$jatsDocument = new JATSDocument($file_name .".xml");
 
 /*
  * @var $htmlDocument HTMLDocument conversion to HTML
@@ -19,7 +20,7 @@ $htmlDocument = new HTMLDocument($jatsDocument);
 //the first parameter is citation style format: https://github.com/citation-style-language/styles
 $htmlDocument->setReferences('apa', 'en-US', true);
 
-$htmlDocument->saveAsValidHTMLFile('example.html', 'Arbitrary HTML document title', true);
+$htmlDocument->saveAsValidHTMLFile($file_name.'.html', 'Arbitrary HTML document title', true);
 
 /*
  * @var $pdfDocument TCPDFDocument class that extends TCDPF

@@ -17,12 +17,12 @@ class Table extends \DOMElement {
 	public function setContent(JATSTable $jatsTable) {
 
 		// Converting table head
-
 		$hasHead = false;
 		$hasBody = false;
 
 		$htmlHead = $this->ownerDocument->createElement("thead");
 		$htmlBody = $this->ownerDocument->createElement("tbody");
+		$htmlFoot = $this->ownerDocument->createElement("tfoot");
 
 		foreach ($jatsTable->getContent() as $row) {
 			/* @var $row JATSRow */
@@ -33,12 +33,10 @@ class Table extends \DOMElement {
 					$htmlRow = $this->ownerDocument->createElement("tr");
 					$htmlHead->appendChild($htmlRow);
 					foreach ($row->getContent() as $cell) {
-
 						/* @var $cell JATSCell */
 						$htmlCell = new Cell($cell->getType());
 						$htmlRow->appendChild($htmlCell);
 						$htmlCell->setContent($cell);
-
 					}
 					break;
 				case 2:
@@ -108,6 +106,25 @@ class Table extends \DOMElement {
 				$par->setContent($tableContent);
 			}
 		}
+		/* Set table foot notes
+        * @var $jatsTable JATSPar
+        */
+		$footnotes = $jatsTable->getFootnotes();
+		if (count($footnotes) > 0) {
+			foreach ($footnotes as $footnote) {
+				$footnoteRow = $this->ownerDocument->createElement("tr");
+				$footnoteCell = $this->ownerDocument->createElement("td");
+				$footnoteCell->setAttribute("colspan", "100%"); // To span across the table
+	
+				$footnoteText = $this->ownerDocument->createTextNode($footnote['content']);
+				$footnoteCell->appendChild($footnoteText);
+				$footnoteRow->appendChild($footnoteCell);
+	
+				$htmlFoot->appendChild($footnoteRow);
+			}
+			// Append the footnotes to the table
+			$this->appendChild($htmlFoot);
+		}
 
 	}
 
@@ -118,9 +135,15 @@ class Table extends \DOMElement {
 	private function extractRowsAndCells(\DOMElement $htmlElement, JATSRow $row): void
 	{
 		$htmlRow = $this->ownerDocument->createElement("tr");
+		// $htmlRow->setAttribute("align","center");
+
+		$align = $row->getAlign();
+		if (!empty($align)) {
+			$htmlRow->setAttribute("align", $align);
+		}
+
 		$htmlElement->appendChild($htmlRow);
 		foreach ($row->getContent() as $cell) {
-
 			/* @var $cell JATSCell */
 			$htmlCell = new Cell($cell->getType());
 			$htmlRow->appendChild($htmlCell);
@@ -128,4 +151,5 @@ class Table extends \DOMElement {
 
 		}
 	}
+
 }
