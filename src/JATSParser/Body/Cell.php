@@ -20,14 +20,11 @@ class Cell extends AbstractElement {
 	/* @var $rowspan int  */
 	private $rowspan;
 
-	/* @var $align string  */
-	private $align;
-
-
 	function __construct(\DOMElement $cellNode) {
 		parent::__construct($cellNode);
 		
 		$this->type = $cellNode->nodeName;
+
 		$content = array();
 		$xpath = Document::getXpath();
 		$childNodes = $xpath->query("child::node()", $cellNode);
@@ -55,8 +52,7 @@ class Cell extends AbstractElement {
 		$cellNode->hasAttribute("colspan") ? $this->colspan = $cellNode->getAttribute("colspan") : $this->colspan = 1;
 
 		$cellNode->hasAttribute("rowspan") ? $this->rowspan = $cellNode->getAttribute("rowspan") : $this->rowspan = 1;
-		
-		$cellNode->hasAttribute("align") ? $this->align = $cellNode->getAttribute("align") : $this->align = "";
+
 	}
 
 	/**
@@ -89,10 +85,5 @@ class Cell extends AbstractElement {
 	public function getRowspan(): int
 	{
 		return $this->rowspan;
-	}
-
-	public function getAlign(): string
-	{
-		return $this->align;
 	}
 }

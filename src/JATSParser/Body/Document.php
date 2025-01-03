@@ -5,6 +5,8 @@ use JATSParser\Back\Journal as Journal;
 use JATSParser\Back\Book as Book;
 use JATSParser\Back\Chapter as Chapter;
 use JATSParser\Back\Conference as Conference;
+use JATSParser\Back\Individual as Individual;
+use JATSParser\Back\Collaboration as Collaboration;
 
 class Document {
 
@@ -65,22 +67,27 @@ class Document {
 					switch ($citationTypeNode->nodeValue) {
 						case "journal":
 							$journal = new Journal($reference);
+							$this->extractAuthors($reference, $journal);
 							$references[] = $journal;
 							break;
 						case "book":
 							$book = new Book($reference);
+							$this->extractAuthors($reference, $book);
 							$references[] = $book;
 							break;
 						case "chapter":
 							$chapter = new Chapter($reference);
+							$this->extractAuthors($reference, $chapter);
 							$references[] = $chapter;
 							break;
 						case "conference":
 							$conference = new Conference($reference);
+							$this->extractAuthors($reference, $conference);
 							$references[] = $conference;
 							break;
 						default:
 							$defaultRef = new Journal($reference);
+							$this->extractAuthors($reference, $defaultRef);
 							$references[] = $defaultRef;
 							break;
 					}
@@ -109,6 +116,36 @@ class Document {
 			}
 		}
 		$this->references = $references;
+	}
+	private function extractAuthors(\DOMElement $reference, $referenceObject) {
+		
+		$personGroupNodes = self::$xpath->query(".//person-group", $reference);
+	
+		if ($personGroupNodes->length > 0) {
+			foreach ($personGroupNodes as $personGroupNode) {
+			
+				$individuals = [];
+				$individualNodes = self::$xpath->query(".//string-name", $personGroupNode);
+				foreach ($individualNodes as $individualNode) {
+					$individual = new Individual($individualNode);
+					$individuals[] = $individual;
+				}
+
+				$collabNodes = self::$xpath->query(".//collab", $personGroupNode);
+				
+				foreach ($collabNodes as $collabNode) {
+					$collab = new Collaboration($collabNode);
+					$individuals[] = $collab;
+				}
+
+				$etalNode = self::$xpath->query(".//etal", $personGroupNode);
+				if ($etalNode->length > 0) {
+					$individuals[] = 'et al.';
+				}
+			
+				$referenceObject->setAuthors($individuals);
+			}
+		}
 	}
 
 	private function extractContent(): void

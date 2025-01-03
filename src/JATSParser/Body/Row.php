@@ -8,7 +8,6 @@ class Row extends AbstractElement {
 
 	/* @var $content array */
 	private $content;
-    private $align;
 
 	/* @var $type int;
 	 * points the row location inside DOM table tree
@@ -51,11 +50,4 @@ class Row extends AbstractElement {
 	public function getType(): int {
 		return $this->type;
 	}
-	public function setAlign($align) {
-        $this->align = $align;
-    }
-
-    public function getAlign() {
-        return $this->align;
-    }
 }

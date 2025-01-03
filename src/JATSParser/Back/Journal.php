@@ -132,6 +132,11 @@ class Journal extends AbstractReference
 	{
 		return $this->journal;
 	}
+	
+	public function setAuthors(array $authors)
+    {
+        $this->authors = $authors;  
+	}
 
 	public function getPages(): string
 	{

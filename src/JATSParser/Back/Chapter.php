@@ -131,4 +131,9 @@ class Chapter extends AbstractReference
 	{
 		return $this->publisherLoc;
 	}
+
+	public function setAuthors(array $authors)
+    {
+        $this->authors = $authors;  
+	}
 }

@@ -107,5 +107,10 @@ class Conference extends AbstractReference {
 	{
 		return $this->pubIdType;
 	}
+
+	public function setAuthors(array $authors)
+    {
+        $this->authors = $authors;  
+	}
 }
 

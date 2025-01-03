@@ -28,18 +28,15 @@ class Table extends AbstractElement {
 	/* @var $notes array */
 	private $notes;
 
-	/* @var $footnotes array */
-	private $footnotes;
-
 	public function __construct(\DOMElement $tableWraper) {
 		parent::__construct($tableWraper);
-		
+
 		$this->label = $this->extractFromElement(".//label", $tableWraper);
 		$this->link = $this->extractFromElement("./@xlink:href", $tableWraper);
 		$this->id = $this->extractFromElement("./@id", $tableWraper);
 		$this->title = $this->extractTitleOrCaption($tableWraper, self::JATS_EXTRACT_TITLE);
 		$this->notes = $this->extractTitleOrCaption($tableWraper, self::JATS_EXTRACT_CAPTION);
-		$this->footnotes = $this->extractTableWrapFoot($tableWraper); // Extract footnotes
+
 		$this->extractContent($tableWraper);
 	}
 
@@ -62,9 +59,7 @@ class Table extends AbstractElement {
 	public function getNotes(): ?array {
 		return $this->notes;
 	}
-	public function getFootnotes(): ?array {
-		return $this->footnotes;
-	}
+
 
 	private function extractContent(\DOMElement $tableWraper) {
 		$content = array();
@@ -87,29 +82,8 @@ class Table extends AbstractElement {
 		foreach ($rowNodes as $rowNode) {
 			$row = new Row($rowNode);
 			$content[] = $row;
-			$align = $rowNode->getAttribute("align");
-			if (!empty($align)) {
-				$row->setAlign($align); 
-			}
 		}
 		$this->content = $content;
 	}
-	private function extractTableWrapFoot(\DOMElement $tableWraper): array {
-		$footnotes = [];
-		$footNodeList = $this->xpath->query(".//table-wrap-foot/fn", $tableWraper);
 
-		foreach ($footNodeList as $fnNode) {
-			$id = $this->extractFromElement("./@id", $fnNode);
-			$type = $this->extractFromElement("./@fn-type", $fnNode);
-			$content = $this->extractFromElement(".//p", $fnNode);
-
-			$footnotes[] = [
-				'id' => $id,
-				'type' => $type,
-				'content' => $content,
-			];
-		}
-
-		return $footnotes;
-	}
 }
