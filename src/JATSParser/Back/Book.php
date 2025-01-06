@@ -94,8 +94,8 @@ class Book extends AbstractReference {
 	{
 		return $this->pubIdType;
 	}
-	public function setAuthors(array $authors)
-    {
-        $this->authors = $authors;  
-	}
+
+	public function setAuthors(array $authors) {
+        $this->authors = $authors;
+    }
 }

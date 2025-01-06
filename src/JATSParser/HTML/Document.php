@@ -23,14 +23,14 @@ class Document extends \DOMDocument {
 	var $citationLang;
 	var $jatsDocument;
 
-	public function __construct(JATSDocument $jatsDocument) {
+	public function __construct(JATSDocument $jatsDocument,$citations='apa') {
 		parent::__construct('1.0', 'utf-8');
 		$this->preserveWhiteSpace = false;
 		$this->formatOutput = true;
 		$this->jatsDocument = $jatsDocument;
-
 		$articleSections = $this->jatsDocument->getArticleSections();
 		$this->extractContent($articleSections);
+		$this->setReferences($citations);
 	}
 
 	/**
@@ -270,7 +270,6 @@ class Document extends \DOMDocument {
 		if ($this->styleInTextLinks) {
 			$this->setInTextLinks($citeProc, $data);
 		}
-
 		$this->getCiteBody($htmlString, $rawData);
 	}
 
@@ -278,9 +277,9 @@ class Document extends \DOMDocument {
 		$document = new \DOMDocument('1.0', 'utf-8');
 		$document->loadXML($htmlString);
 
-		$listEl = $this->createElement('ol');
+		$listEl = $this->createElement('ul');
 		$listEl->setAttribute('class', 'references');
-		$listEl->setAttribute('id', JATSPARSER_REFERENCE_ELEMENT_ID);
+		$listEl->setAttribute('id', 'ojs-references');
 		$this->appendChild($listEl);
 
 		$xpath = new \DOMXPath($document);
@@ -289,7 +288,6 @@ class Document extends \DOMDocument {
 			$newListItemEl = $this->createElement('li');
 			$newListItemEl->setAttribute('id', $listItemEl->getAttribute('id'));
 			$listEl->appendChild($newListItemEl);
-
 			$nodeList = $xpath->query('div[@class="csl-right-inline"]/node()', $listItemEl);
 			if ($nodeList->count() > 0) {
 				foreach ($nodeList as $node) {
@@ -303,15 +301,22 @@ class Document extends \DOMDocument {
 						$newListItemEl->appendChild($newNode);
 					}
 				}
-			}
-		}
+			}  
+        $numericId = (int) filter_var($newListItemEl->getAttribute('id'), FILTER_SANITIZE_NUMBER_INT);
+        $sortedItems[$numericId] = $newListItemEl;
+    }
+    ksort($sortedItems);
+	$sortedItems=array_reverse($sortedItems);
+    foreach ($sortedItems as $sortedItem) {
+        $listEl->appendChild($sortedItem);
+    }
 		// Append data from mixed citation nodes that don't contain valid ref data for CSL
 		foreach ($rawData as $rawRefObject) {
-			$newListItemEl = $this->createElement('li');
-			$newListItemEl->setAttribute('id', $rawRefObject->getId());
+			$newRawListItemEl = $this->createElement('li');
+			$newRawListItemEl->setAttribute('id', $rawRefObject->getId());
 			$textRefNode = $this->createTextNode(trim($rawRefObject->getRawReference()));
-			$newListItemEl->appendChild($textRefNode);
-			$listEl->appendChild($newListItemEl);
+			$newRawListItemEl->appendChild($textRefNode);
+			$listEl->appendChild($newRawListItemEl);
 		}
 	}
 
@@ -393,7 +398,8 @@ class Document extends \DOMDocument {
 
 		// DOMDocument::getElementById or xpath analog won't work presumably because the absence of a root element
 		foreach ($this->getElementsByTagName('ol') as $ol) {
-			if ($ol->getAttribute('id') == JATSPARSER_REFERENCE_ELEMENT_ID) {
+			if ($ol->getAttribute
+			('id') == JATSPARSER_REFERENCE_ELEMENT_ID) {
 				$refListEl = $ol;
 			}
 		}

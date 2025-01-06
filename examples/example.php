@@ -20,17 +20,17 @@ $htmlDocument = new HTMLDocument($jatsDocument);
 //the first parameter is citation style format: https://github.com/citation-style-language/styles
 $htmlDocument->setReferences('apa', 'en-US', true);
 
-$htmlDocument->saveAsValidHTMLFile($file_name.'.html', 'Arbitrary HTML document title', true);
+$htmlDocument->saveAsValidHTMLFile($file_name.".html", 'Arbitrary HTML document title', true);
 
 /*
  * @var $pdfDocument TCPDFDocument class that extends TCDPF
  */
-$pdfDocument = new TCPDFDocument();
-$pdfDocument->AddPage();
-$pdfDocument->SetFont('dejavusans');
-$htmlString = $htmlDocument->getHtmlForTCPDF();
-$pdfHeaderLogo = __DIR__ . "/../logo/logo.jpg";
-$pdfDocument->SetHeaderData($pdfHeaderLogo, PDF_HEADER_LOGO_WIDTH, "Some Text Here", "Another text here");
-$pdfDocument->writeHTML($htmlString, true, false, true, false, '');
-$pdfDocument->Output(__DIR__ . '/example.pdf', 'F');
+// $pdfDocument = new TCPDFDocument();
+// $pdfDocument->AddPage();
+// $pdfDocument->SetFont('dejavusans');
+// $htmlString = $htmlDocument->getHtmlForTCPDF();
+// $pdfHeaderLogo = __DIR__ . "/../logo/logo.jpg";
+// $pdfDocument->SetHeaderData($pdfHeaderLogo, PDF_HEADER_LOGO_WIDTH, "Some Text Here", "Another text here");
+// $pdfDocument->writeHTML($htmlString, true, false, true, false, '');
+// $pdfDocument->Output(__DIR__ . '/example.pdf', 'F');
 

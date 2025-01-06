@@ -3,6 +3,7 @@
 
 use JATSParser\Back\AbstractReference;
 use JATSParser\Back\Individual;
+use JATSParser\Back\Collaboration;
 use JATSParser\Back\Journal;
 use JATSParser\Back\Book;
 use JATSParser\Back\Chapter;
@@ -21,105 +22,123 @@ class Reference {
 	}
 
 	public function setContent() {
-		if (!isset($this->content)) $this->content = new \stdClass();
-
+		if (!isset($this->content)) {
+			$this->content = new \stdClass();
+		}
+		
+		$this->content->status = $this->content->status ?? 'active';
+		// Set the ID property
 		$this->setSimpleProperty('id', 'getId');
-
 		if (!empty($this->jatsReference->getAuthors())) {
 			foreach ($this->jatsReference->getAuthors() as $individual) {
-				if (get_class($individual) == 'JATSParser\Back\Individual') { /** @var $individual Individual */
+				if (is_object($individual) && get_class($individual) == 'JATSParser\Back\Individual') {
 					$author = new \stdClass();
+					
 					if (!empty($individual->getGivenNames())) {
-						$author->family = $individual->getSurname();
+						$author->family = $individual->getGivenNames();
 					}
-
-					if (!empty($individual->getSurname())) {
-						$author->given = $individual->getGivenNames();
+						if (!empty($individual->getSurname())) {
+						$author->given = $individual->getSurname();
+					}
+					$this->content->author[] = $author;
+				}
+				if (is_object($individual) && get_class($individual) == 'JATSParser\Back\Collaboration') {
+					
+					$author = new \stdClass();
+					
+					
+					if (!empty($individual->getName())) {
+						$author->family = $individual->getName();
 					}
 
 					$this->content->author[] = $author;
-
 				}
 			}
 		}
-
+	
+	
 		if (!empty($this->jatsReference->getEditors())) {
 			foreach ($this->jatsReference->getEditors() as $individual) {
-				if (get_class($individual) == 'JATSParser\Back\Individual') { /** @var $individual Individual */
+				
+				if (is_object($individual) && get_class($individual) == 'JATSParser\Back\Individual') {
+				
 					$editor = new \stdClass();
+	
+					
 					if (!empty($individual->getGivenNames())) {
 						$editor->family = $individual->getSurname();
 					}
-
+	
+					
 					if (!empty($individual->getSurname())) {
 						$editor->given = $individual->getGivenNames();
 					}
-
+	
+				
 					$this->content->editor[] = $editor;
 				}
 			}
 		}
-
+	
+		
 		$this->setSimpleProperty('url', 'getUrl');
 		$this->setSimpleProperty('title', 'getTitle');
-
-		// specific properties
+	
+		
 		if (checkdate(1, 1, (int) $this->jatsReference->getYear())) {
 			$this->setDate('issued', 'getYear');
 		}
+	
+		
 		$this->setSimpleProperty('container-title', 'getJournal');
 		$this->setSimpleProperty('journal', 'getJournal');
 		$this->setSimpleProperty('volume', 'getVolume');
 		$this->setSimpleProperty('issue', 'getIssue');
 		$this->setSimpleProperty('page-first', 'getFpage');
 		$this->setSimpleProperty('page', 'getPages');
-
+	
+		// Check DOI and set it if available
 		if (method_exists($this->jatsReference, 'getPubIdType') && array_key_exists('doi', $this->jatsReference->getPubIdType())) {
 			$doi = $this->jatsReference->getPubIdType()['doi'];
-			// Can't pass URL, see https://github.com/Vitaliy-1/JATSParserPlugin/issues/63
+			// Remove DOI prefix (if it exists)
 			if (self::isDoiUrl($doi)) {
 				$doi = substr_replace($doi, '', 0, strlen(DOI_REFERENCE_PREFIX));
 			}
-			$this->content->{'DOI'} =$doi;
+			$this->content->{'DOI'} = $doi;
 		}
-
+	
+		// Set publisher and location
 		$this->setSimpleProperty('publisher', 'getPublisherName');
 		$this->setSimpleProperty('publisher-place', 'getPublisherLoc');
 		$this->setSimpleProperty('container-title', 'getBook');
 		$this->setSimpleProperty('event', 'getConfName');
 		$this->setDate('event-date', 'getConfDate');
 		$this->setSimpleProperty('event-place', 'getConfLoc');
-
+	
+		// Determine the type of reference (Journal, Book, Chapter, Conference)
 		switch (get_class($this->jatsReference)) {
-
 			case "JATSParser\Back\Journal":
-
-				/* @var $jatsReference Journal */
+				/** @var $jatsReference Journal */
 				$this->content->type = 'article-journal';
 				break;
-
+	
 			case "JATSParser\Back\Book":
-
-				/* @var $jatsReference Book */
+				/** @var $jatsReference Book */
 				$this->content->type = 'book';
-
 				break;
-
+	
 			case "JATSParser\Back\Chapter":
-
-				/* @var $jatsReference Chapter */
+				/** @var $jatsReference Chapter */
 				$this->content->type = 'chapter';
-
 				break;
-
+	
 			case "JATSParser\Back\Conference":
-
-				/* @var $jatsReference Conference */
+				/** @var $jatsReference Conference */
 				$this->content->type = 'conference';
-
 				break;
 		}
 	}
+	
 
 	/**
 	 * @return array
