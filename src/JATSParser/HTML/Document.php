@@ -265,6 +265,14 @@ class Document extends \DOMDocument {
 		];
 
 		$citeProc = new CiteProc($style, $this->citationLang, $additionalMarkup);
+		foreach ($data as $datas) {
+            foreach ($datas->author as $name) {
+                if (!empty($name->family) && !empty($name->given)) {
+                    $name->family = $name->family . " " . $name->given;
+                    $name->given = '';
+                }
+            }
+        }
 		$htmlString = $citeProc->render($data, 'bibliography');
 
 		if ($this->styleInTextLinks) {
