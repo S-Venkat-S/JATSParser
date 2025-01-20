@@ -23,7 +23,7 @@ class Document extends \DOMDocument {
 	var $citationLang;
 	var $jatsDocument;
 
-	public function __construct(JATSDocument $jatsDocument,$citations='apa') {
+	public function __construct(JATSDocument $jatsDocument,$citations=JATSPARSER_CITEPROC_STYLE_DEFAULT) {
 		parent::__construct('1.0', 'utf-8');
 		$this->preserveWhiteSpace = false;
 		$this->formatOutput = true;
@@ -265,14 +265,6 @@ class Document extends \DOMDocument {
 		];
 
 		$citeProc = new CiteProc($style, $this->citationLang, $additionalMarkup);
-		foreach ($data as $datas) {
-            foreach ($datas->author as $name) {
-                if (!empty($name->family) && !empty($name->given)) {
-                    $name->family = $name->family . " " . $name->given;
-                    $name->given = '';
-                }
-            }
-        }
 		$htmlString = $citeProc->render($data, 'bibliography');
 
 		if ($this->styleInTextLinks) {

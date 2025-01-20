@@ -35,10 +35,10 @@ class Reference {
 					$author = new \stdClass();
 					
 					if (!empty($individual->getGivenNames())) {
-						$author->family = $individual->getGivenNames();
+						$author->given = $individual->getGivenNames();
 					}
 						if (!empty($individual->getSurname())) {
-						$author->given = $individual->getSurname();
+						$author->family = $individual->getSurname();
 					}
 					$this->content->author[] = $author;
 				}
